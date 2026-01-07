@@ -563,136 +563,69 @@
         <div class="grid2">
           <div class="field">
             <label>✅ Arrivée boutique</label>
-            <textarea id="tplArrivee" class="waBox" style="min-height:150px"></textarea>
+            <textarea id="tplArrivee" class="waBox" style="min-height:120px;"></textarea>
           </div>
           <div class="field">
             <label>❌ Rupture / délai</label>
-            <textarea id="tplRupture" class="waBox" style="min-height:150px"></textarea>
+            <textarea id="tplRupture" class="waBox" style="min-height:120px;"></textarea>
           </div>
           <div class="field">
             <label>⏳ Relance fournisseur</label>
-            <textarea id="tplRelance" class="waBox" style="min-height:150px"></textarea>
+            <textarea id="tplRelance" class="waBox" style="min-height:120px;"></textarea>
           </div>
           <div class="field">
             <label>📦 Reçu partiellement</label>
-            <textarea id="tplPartiel" class="waBox" style="min-height:150px"></textarea>
+            <textarea id="tplPartiel" class="waBox" style="min-height:120px;"></textarea>
           </div>
         </div>
       </div>
 
       <div class="modalFooter">
-        <div class="small">Les paramètres WhatsApp sont sauvegardés sur ce PC (localStorage).</div>
         <div class="actions">
           <button class="light" id="btnResetSettings">Réinitialiser</button>
-          <button class="primary" id="btnSaveSettings">Enregistrer</button>
+        </div>
+        <div class="actions">
+          <button class="light" id="btnCloseSettings">Annuler</button>
+          <button class="ok" id="btnSaveSettings">Enregistrer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Supabase v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-  (function(){
+  <script type="module">
+  (async ()=>{
     // =========================
     // Helpers
     // =========================
     const $ = (id)=>document.getElementById(id);
-    const show = (el, yes)=> el.classList.toggle("hidden", !yes);
-    const setAuthMsg = (t)=> { $("authMsg").textContent = t || ""; };
-    const setResetMsg = (t)=> { $("resetMsg").textContent = t || ""; };
-    const setMsg = (t)=> { $("msg").textContent = t || ""; };
-    const setDebug = (t)=> { $("debug").textContent = t || ""; };
+    const show = (el, on)=>el && (el.classList.toggle("hidden", !on));
+    const escapeHtml = (s="") => String(s)
+      .replaceAll("&","&amp;").replaceAll("<","&lt;")
+      .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
 
-function canWrite(){
-  return role === "shop" || role === "admin";
-}
-
-
-    function escapeHtml(s) {
-      return (s || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;");
-    }
-
-    function isRecoveryFlow(){
-      const h=(location.hash||"").toLowerCase();
-      const q=(location.search||"").toLowerCase();
-      return h.includes("access_token=") || q.includes("type=recovery") || q.includes("recovery");
-    }
-
-    // =========================
-    // Supabase config
-    // =========================
-    const SUPABASE_URL = "https://lhddwfeaoxnlflqlihdg.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoZGR3ZmVhb3hubGZscWxpaGRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MTI0NjcsImV4cCI6MjA4MzE4ODQ2N30.5Po48JdTbLZhcXjyJ48Il511DpiYNPdUZq4H-HNPAa4";
-    const SITE_URL = "https://beck37360.github.io/vapochill-suivi-commandes";
-
-    if(!window.supabase){
-      alert("❌ La librairie Supabase ne charge pas (CDN bloqué / réseau).");
-      return;
-    }
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let isLoggingOut = false;      // bloque enterApp pendant la déconnexion
-let hasBooted = false;         // évite de boot 2 fois (bootstrap + listener)
-
-
-    // =========================
-    // App config
-    // =========================
-    const USERS = ["Laetitia","Marco","Charlotte","Nico","Alan","Corentin","Mathieu","Romain"];
-
-    // WhatsApp modal mode
-    const WA_PREVIEW_KEY = "wa_preview_mode_v1"; // "direct" ou "preview"
-    if (!localStorage.getItem(WA_PREVIEW_KEY)) localStorage.setItem(WA_PREVIEW_KEY, "preview");
-
-    // Settings
-    const SETTINGS_KEY = "vc_settings_v1";
+    const SITE_URL = location.origin;
+    const STORAGE_KEY = "vapochill_orders_v3";
+    const USERS = ["Emma","Noah","Lina","Lucas","Maya","Owen","Léo","Eva"];
+    const WA_PREVIEW_KEY = "vapochill_wa_preview_mode";
+    const SETTINGS_KEY = "vapochill_settings_v1";
 
     const DEFAULT_SETTINGS = {
       shopName: "Vapo'Chill",
       hours: "",
-      signature: "{vendeur} - Vapochill",
+      signature: "{vendeur} - Vapo'Chill",
       templates: {
-        arrivee:
-`Bonjour,
-
-Votre commande {article} est bien arrivée en boutique
-Vous pouvez passer quand vous voulez
-
-{signature}`,
-        rupture:
-`Bonjour,
-
-Petit retour pour votre commande {article} : elle est en rupture chez le fournisseur.
-Je vous tiens au courant dès que j’ai une date
-
-{signature}`,
-        relance:
-`Bonjour,
-
-Je reviens vers vous : votre commande {article} est toujours en attente.
-On relance le fournisseur et on vous tient informé
-
-{signature}`,
-        partiel:
-`Bonjour,
-
-Une partie de votre commande {article} est arrivée en boutique
-Je vous confirme le reste dès réception
-
-{signature}`
+        arrivee: `Bonjour {client},\n\nVotre commande "{article}" est arrivée en boutique.\nVous pouvez venir la récupérer.\n\n{signature}`,
+        rupture: `Bonjour {client},\n\nNous avons un délai sur votre commande "{article}".\nNous vous tenons informé(e) dès réception.\n\n{signature}`,
+        relance: `Bonjour {client},\n\nNous relançons le fournisseur pour votre commande "{article}".\nMerci pour votre patience.\n\n{signature}`,
+        partiel: `Bonjour {client},\n\nUne partie de votre commande "{article}" est arrivée.\nLe reste suivra dès que possible.\n\n{signature}`
       }
     };
 
     function loadSettings(){
       try{
         const raw = localStorage.getItem(SETTINGS_KEY);
-        if (!raw) return structuredClone(DEFAULT_SETTINGS);
+        if(!raw) return structuredClone(DEFAULT_SETTINGS);
         const obj = JSON.parse(raw);
         return {
           ...structuredClone(DEFAULT_SETTINGS),
@@ -736,6 +669,8 @@ Je vous confirme le reste dès réception
     let storesCache = [];
     let ordersCache = [];
     let waPendingOrderId = null;
+    let hasBooted = false;
+    let isLoggingOut = false;
 
     // =========================
     // UI: login/app
@@ -756,8 +691,7 @@ Je vous confirme le reste dès réception
       setResetMsg("");
       setDebug("");
 
-hasBooted = false;
-
+      hasBooted = false;
     }
 
     function showApp(email){
@@ -779,74 +713,36 @@ hasBooted = false;
         const password = $("password").value.trim();
         if(!email || !password){ setAuthMsg("⚠️ Mets email + mot de passe."); return; }
 
-        setAuthMsg("⏳ Connexion…");
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if(error){ setAuthMsg("❌ " + error.message); return; }
-        setAuthMsg("✅ Connecté.");
       }catch(e){
         setAuthMsg("❌ " + (e?.message || e));
       }
     }
 
-async function logout(){
-  try{
-    isLoggingOut = true;
-    hasBooted = false;
-
-    // 1) tente la déconnexion
-    await supabaseClient.auth.signOut();
-
-  } catch (e) {
-    console.warn("signOut error (ignored):", e);
-  } finally {
-    // 2) purge HARD tokens supabase
-    for (const k of Object.keys(localStorage)) {
-      if (k.startsWith("sb-") && k.includes("auth")) {
-        localStorage.removeItem(k);
-      }
-    }
-    for (const k of Object.keys(sessionStorage)) {
-      if (k.startsWith("sb-") && k.includes("auth")) {
-        sessionStorage.removeItem(k);
-      }
-    }
-
-    // 3) retour login
-    showLogin();
-
-    // 4) empêche re-trigger immédiat
-    setTimeout(()=>{ isLoggingOut = false; }, 1200);
-  }
-}
-
-
-
-    async function updatePassword(){
+    async function logout(){
       try{
-        setResetMsg("");
-        const pass = $("newPassword").value.trim();
-        if(pass.length < 6){ setResetMsg("⚠️ Min 6 caractères."); return; }
-
-        const { error } = await supabaseClient.auth.updateUser({ password: pass });
-        if(error){ setResetMsg("❌ " + error.message); return; }
-        setResetMsg("✅ Mot de passe modifié. Reconnecte-toi.");
-      }catch(e){
-        setResetMsg("❌ " + (e?.message || e));
+        isLoggingOut = true;
+        await supabaseClient.auth.signOut();
+        showLogin();
+      }finally{
+        isLoggingOut = false;
       }
     }
 
     // =========================
-    // Data helpers
+    // Utils
     // =========================
-    function statusClass(statut) {
-      if (statut === "Mettre en commande") return "st st-mec";
-      if (statut === "Commander") return "st st-com";
-      if (statut === "Rupture de stock") return "st st-rup";
-      if (statut === "Reçu partiellement") return "st st-par";
-      return "st";
+    function setAuthMsg(s){ $("authMsg").textContent = s || ""; }
+    function setResetMsg(s){ $("resetMsg").textContent = s || ""; }
+    function setMsg(s){ $("msg").textContent = s || ""; }
+    function setDebug(s){ $("debug").textContent = s || ""; }
+
+    function isRecoveryFlow(){
+      return location.hash.includes("type=recovery");
     }
 
-    function setTodayDefault() {
+    function setTodayDefault(){
       const d = new Date();
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -854,28 +750,49 @@ async function logout(){
       $("date").value = `${yyyy}-${mm}-${dd}`;
     }
 
-    function timeSince(iso) {
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return "";
-      let diff = Math.max(0, Date.now() - d.getTime());
+    function timeSince(iso){
+      if(!iso) return "-";
+      const now = new Date();
+      const then = new Date(iso);
+      const diff = Math.max(0, now - then);
       const min = Math.floor(diff / 60000);
-      const h = Math.floor(min / 60);
-      const m = min % 60;
-      const j = Math.floor(h / 24);
-      const hh = h % 24;
-      if (j > 0) return `il y a ${j}j ${hh}h`;
-      if (h > 0) return `il y a ${h}h ${m}m`;
-      return `il y a ${m}m`;
+      if(min < 60) return `${min} min`;
+      const hr = Math.floor(min / 60);
+      if(hr < 24) return `${hr} h`;
+      const day = Math.floor(hr / 24);
+      return `${day} j`;
     }
 
-    function phoneToWhatsAppNumber(phone) {
-      let p = (phone || "").replace(/[^\d+]/g, "");
-      p = p.replace(/\D/g, "");
-      if (!p) return "";
-      if (p.startsWith("0") && p.length === 10) return "33" + p.slice(1);
-      if (p.startsWith("33")) return p;
-      if (p.startsWith("0033")) return "33" + p.slice(4);
+    function confirmDanger(msg){
+      return confirm(msg);
+    }
+
+    function statusClass(st){
+      if(st === "Mettre en commande") return "st st-mec";
+      if(st === "Commander") return "st st-com";
+      if(st === "Rupture de stock") return "st st-rup";
+      if(st === "Reçu partiellement") return "st st-par";
+      return "st";
+    }
+
+    function phoneToWhatsAppNumber(phone){
+      const p = (phone || "").replace(/[^\d+]/g,"");
+      if(!p) return "";
+      if(p.startsWith("+")) return p.slice(1);
+      if(p.startsWith("0")) return "33" + p.slice(1);
       return p;
+    }
+
+    function antiErrorOn(){
+      return $("antiError").value === "on";
+    }
+
+    function canWrite(){
+      if(role !== "shop"){
+        alert("Lecture seule (admin).");
+        return false;
+      }
+      return true;
     }
 
     function getWAPreviewMode(){
@@ -948,6 +865,68 @@ async function logout(){
       storesCache = data || [];
     }
 
+    function normalizeEmail(email){
+      return (email || "").trim().toLowerCase();
+    }
+
+    function findStoreByEmail(email){
+      const target = normalizeEmail(email);
+      if (!target) return null;
+      return storesCache.find(store => normalizeEmail(store.email) === target) || null;
+    }
+
+    async function fetchStoreByEmail(email){
+      const target = normalizeEmail(email);
+      if (!target) return null;
+      const { data, error } = await supabaseClient
+        .from("stores")
+        .select("id,name,email")
+        .eq("email", target)
+        .maybeSingle();
+      if (error) throw new Error("stores: " + error.message);
+      return data || null;
+    }
+
+    async function getCurrentUserEmail(){
+      const { data } = await supabaseClient.auth.getUser();
+      return data?.user?.email || "";
+    }
+
+    async function ensureStoreId(email){
+      if (myStoreId) return myStoreId;
+
+      const userEmail = normalizeEmail(email || await getCurrentUserEmail());
+      if (!userEmail) return null;
+
+      if (!storesCache.length) {
+        await fetchStores();
+      }
+
+      let matchedStore = findStoreByEmail(userEmail);
+      if (!matchedStore) {
+        matchedStore = await fetchStoreByEmail(userEmail);
+      }
+      if (!matchedStore?.id) return null;
+
+      myStoreId = matchedStore.id;
+      myStoreName = matchedStore.name || myStoreName;
+
+      try{
+        const { data } = await supabaseClient.auth.getUser();
+        const uid = data?.user?.id;
+        if (uid) {
+          await supabaseClient
+            .from("profiles")
+            .update({ store_id: matchedStore.id })
+            .eq("user_id", uid);
+        }
+      }catch(err){
+        console.warn("store_id update failed:", err?.message || err);
+      }
+
+      return myStoreId;
+    }
+
     function fillStoreSelect(){
       $("storeSelect").innerHTML = storesCache.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
       if(storesCache[0]) $("storeSelect").value = storesCache[0].id;
@@ -965,59 +944,64 @@ async function logout(){
     }
 
     async function loadOrders(){
-  setDebug("");
-  setMsg("");
+      setDebug("");
+      setMsg("");
 
-  // 1) déterminer le storeId selon le rôle
-  let storeId = myStoreId;
+      // 1) déterminer le storeId selon le rôle
+      let storeId = myStoreId;
 
-  // ADMIN : si une boutique est sélectionnée, on filtre, sinon on affiche tout
-  if (role === "admin") {
-    storeId = $("storeSelect")?.value || ""; // peut être vide
-  }
+      // ADMIN : si une boutique est sélectionnée, on filtre, sinon on affiche tout
+      if (role === "admin") {
+        storeId = $("storeSelect")?.value || ""; // peut être vide
+      }
 
-  // 2) construire la requête
-  let query = supabaseClient
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
+      // 2) construire la requête
+      let query = supabaseClient
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  // 3) appliquer le filtre UNIQUEMENT si storeId existe
-  if (storeId) {
-    query = query.eq("store_id", storeId);
-  }
+      // 3) appliquer le filtre UNIQUEMENT si storeId existe
+      if (storeId) {
+        query = query.eq("store_id", storeId);
+      }
 
-  const { data, error } = await query;
+      const { data, error } = await query;
 
-  if (error) {
-    setDebug("orders: " + error.message);
-    return;
-  }
+      if (error) {
+        setDebug("orders: " + error.message);
+        return;
+      }
 
-  ordersCache = data || [];
-  render();
-}
-
+      ordersCache = data || [];
+      render();
+    }
 
     async function addOrder(){
-        // ✅ Déterminer la boutique sur laquelle on ajoute
-  let storeId = myStoreId;
+      // ✅ Déterminer la boutique sur laquelle on ajoute
+      let storeId = myStoreId;
 
-  // ADMIN : doit choisir une boutique
-  if (role === "admin") {
-    storeId = $("storeSelect")?.value || "";
-    if (!storeId) {
-      alert("⚠️ Admin : sélectionne une boutique avant d’ajouter une commande.");
-      return;
-    }
-  }
+      // ADMIN : doit choisir une boutique
+      if (role === "admin") {
+        storeId = $("storeSelect")?.value || "";
+        if (!storeId) {
+          alert("⚠️ Admin : sélectionne une boutique avant d’ajouter une commande.");
+          return;
+        }
+      }
 
-  // SHOP : sécurité
-  if (!storeId) {
-    alert("⚠️ Boutique inconnue (storeId manquant).");
-    return;
-  }
+      // SHOP : sécurité
+      if (!storeId) {
+        const email = await getCurrentUserEmail();
+        await ensureStoreId(email);
+        storeId = myStoreId;
+      }
 
+      if (!storeId) {
+        const email = await getCurrentUserEmail();
+        alert(`⚠️ Boutique inconnue (storeId manquant).\nEmail connecté: ${email || "inconnu"}\nVérifie que cet email correspond au champ email de la table stores, ou renseigne profiles.store_id.`);
+        return;
+      }
 
       const client = $("client").value.trim();
       const tel = $("tel").value.trim();
@@ -1038,8 +1022,8 @@ async function logout(){
       }
 
       setMsg("⏳ Ajout…");
-     const payload = {
-     store_id: storeId,
+      const payload = {
+        store_id: storeId,
         client, tel, article, qty, date, statut, notes,
         seller,
         received_checked: false,
