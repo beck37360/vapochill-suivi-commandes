@@ -1404,10 +1404,23 @@ function resetForm(){
   setTodayDefault();
   resetForm();
 
-  // 🔐 Charger le profil UNE SEULE FOIS
-  profile = await fetchProfile();
-  role = profile.role || "shop";
-  myStoreId = profile.store_id || null;
+// 🔐 Charger le profil UNE SEULE FOIS
+profile = await fetchProfile();
+role = profile.role || "shop";
+myStoreId = profile.store_id || null;
+
+const { data: u } = await supabaseClient.auth.getUser();
+const uid = u?.user?.id || "-";
+
+setDebug(`DEBUG: email=${email} | role=${role} | storeId=${myStoreId} | uid=${uid}`);
+
+console.warn("=== ENTER APP ===");
+console.warn("email:", email);
+console.warn("profile:", profile);
+console.warn("role:", role);
+console.warn("storeId:", myStoreId);
+console.warn("uid:", uid);
+
 
   // 🪵 LOG TEMPORAIRE (DEBUG)
   console.log("ROLE =", role);
