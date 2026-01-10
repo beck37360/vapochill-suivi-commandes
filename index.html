@@ -556,19 +556,14 @@
     <script type="module">
     (async function(){
       // =========================
-// Helpers
-// =========================
-const $ = (id)=>document.getElementById(id);
-const show = (el, yes)=> el.classList.toggle("hidden", !yes);
-const setAuthMsg = (t)=> { $("authMsg").textContent = t || ""; };
-const setResetMsg = (t)=> { $("resetMsg").textContent = t || ""; };
-const setMsg = (t)=> { $("msg").textContent = t || ""; };
-const setDebug = (t)=> {
-  const el = $("debug");
-  if (el) el.textContent = t || "";
-};
-
-
+      // Helpers
+      // =========================
+      const $ = (id)=>document.getElementById(id);
+      const show = (el, yes)=> el.classList.toggle("hidden", !yes);
+      const setAuthMsg = (t)=> { $("authMsg").textContent = t || ""; };
+      const setResetMsg = (t)=> { $("resetMsg").textContent = t || ""; };
+      const setMsg = (t)=> { $("msg").textContent = t || ""; };
+      const setDebug = (t)=> { $("debug").textContent = t || ""; };
 
     function canWrite(){
       return role === "shop" || role === "admin";
@@ -763,11 +758,6 @@ const setDebug = (t)=> {
         show($("btnSettings"), true);
 
         $("userLabel").textContent = email || "connecté";
-        const antiErrorSelect = $("antiError");
-        if (antiErrorSelect) {
-          antiErrorSelect.value = "off";
-          antiErrorSelect.disabled = true;
-        }
       }
 
       // =========================
@@ -881,10 +871,9 @@ const setDebug = (t)=> {
         return p;
       }
 
-      function isAntiErrorOn(){
-        return false;
+      function antiErrorOn(){
+        return $("antiError")?.value === "on";
       }
-      window.isAntiErrorOn = isAntiErrorOn;
 
       function isUuid(value){
         return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value || "");
@@ -1200,7 +1189,7 @@ const setDebug = (t)=> {
     const o = ordersCache.find(x => String(x.id) === String(id));
     if(!o) return;
 
-    if (isAntiErrorOn() && !Boolean(o.received_checked)) {
+    if (antiErrorOn() && !Boolean(o.received_checked)) {
       alert("⚠️ Coche d’abord la case “Reçu”.");
       return;
     }
@@ -1235,7 +1224,7 @@ const setDebug = (t)=> {
     const o = ordersCache.find(x => String(x.id) === String(id));
     if(!o) return;
 
-    if (isAntiErrorOn() && currentView === "active" && !Boolean(o.received_checked)) {
+    if (antiErrorOn() && currentView === "active" && !Boolean(o.received_checked)) {
       alert("⚠️ Anti-erreur : impossible de supprimer tant que “Reçu” n’est pas coché.\n(Si tu veux vraiment, mets Anti-erreur sur OFF.)");
       return;
     }
