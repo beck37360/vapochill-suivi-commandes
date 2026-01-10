@@ -556,14 +556,19 @@
     <script type="module">
     (async function(){
       // =========================
-      // Helpers
-      // =========================
-      const $ = (id)=>document.getElementById(id);
-      const show = (el, yes)=> el.classList.toggle("hidden", !yes);
-      const setAuthMsg = (t)=> { $("authMsg").textContent = t || ""; };
-      const setResetMsg = (t)=> { $("resetMsg").textContent = t || ""; };
-      const setMsg = (t)=> { $("msg").textContent = t || ""; };
-      const setDebug = (t)=> { $("debug").textContent = t || ""; };
+// Helpers
+// =========================
+const $ = (id)=>document.getElementById(id);
+const show = (el, yes)=> el.classList.toggle("hidden", !yes);
+const setAuthMsg = (t)=> { $("authMsg").textContent = t || ""; };
+const setResetMsg = (t)=> { $("resetMsg").textContent = t || ""; };
+const setMsg = (t)=> { $("msg").textContent = t || ""; };
+const setDebug = (t)=> {
+  const el = $("debug");
+  if (el) el.textContent = t || "";
+};
+
+
 
     function canWrite(){
       return role === "shop" || role === "admin";
