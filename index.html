@@ -827,6 +827,54 @@
       color:#7a1212;
     }
 
+
+    /* =========================
+       APP 3 : ENTRÉE DE STOCK (IFRAME RENDER)
+       ========================= */
+    .stockRoot{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height: calc(100vh - 104px);
+    }
+    .stockHeader{
+      background: linear-gradient(135deg, rgba(15,42,34,.96), rgba(18,56,44,.96));
+      color:#fff;
+      border-radius:22px;
+      padding:16px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 55px rgba(0,0,0,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .stockHeader b{ font-size:18px; }
+    .stockHeader .small{ color:rgba(255,255,255,.82); }
+    .stockFrameCard{
+      background:var(--vc-card);
+      border:1px solid var(--vc-border);
+      border-radius:22px;
+      padding:0;
+      overflow:hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      flex:1;
+      min-height: 720px;
+    }
+    .stockFrame{
+      width:100%;
+      height: calc(100vh - 210px);
+      min-height:720px;
+      border:0;
+      display:block;
+      background:#0f0f10;
+    }
+    @media (max-width: 700px){
+      .stockFrame{ height: calc(100vh - 190px); min-height:620px; }
+      .stockFrameCard{ min-height:620px; }
+    }
+
   </style>
 </head>
 <body>
@@ -984,19 +1032,19 @@ Interface pensée pour aller vite, sans erreurs.
               </div>
             </div>
 
-            <!-- App 3 placeholder -->
+            <!-- App 3 -->
             <div class="appTile">
               <div class="top">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div class="appIcon">🧩</div>
+                  <div class="appIcon">📄</div>
                   <div>
-                    <h3>Nouvelle application</h3>
-                    <p>À venir : en cours....</p>
+                    <h3>Entrée de stock</h3>
+                    <p>Importer une facture PDF • matching Cash Mag • export Excel</p>
                   </div>
                 </div>
               </div>
               <div class="actions">
-                <button id="btnOpenApp3" class="light" type="button">Bientôt</button>
+                <button id="btnOpenApp3" class="primary" type="button">Ouvrir</button>
               </div>
             </div>
           </div>
@@ -1427,6 +1475,40 @@ Interface pensée pour aller vite, sans erreurs.
       </div>
 
     </div> <!-- /cashRoot -->
+
+    <!-- ===============================
+         APP 3 : ENTRÉE DE STOCK (RENDER)
+         =============================== -->
+    <div class="hidden" id="stockRoot">
+
+      <div class="appTopActions">
+        <button class="backBtn" id="btnBackToHubFromStock" type="button">← Retour aux applications</button>
+      </div>
+
+      <div class="stockRoot">
+        <div class="stockHeader">
+          <div>
+            <b>Entrée de stock</b>
+            <div class="small">Facture PDF • correspondance Cash Mag • téléchargement Excel.</div>
+          </div>
+          <div class="actions">
+            <button class="light" id="btnOpenStockNewTab" type="button">Ouvrir en plein écran</button>
+          </div>
+        </div>
+
+        <div class="stockFrameCard">
+          <iframe
+            id="stockFrame"
+            class="stockFrame"
+            src="https://vapochill-stock.onrender.com/"
+            title="Vapo'Chill — Entrée de stock"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+
+    </div> <!-- /stockRoot -->
     <!-- Supabase v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script nomodule>
@@ -1579,6 +1661,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("hubRoot"), false);
         show($("appRoot"), false);
         show($("cashRoot"), false);
+        show($("stockRoot"), false);
 
         show($("resetCard"), isRecoveryFlow());
         setAuthMsg("");
@@ -1597,6 +1680,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("hubRoot"), true);
         show($("appRoot"), false);
         show($("cashRoot"), false);
+        show($("stockRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), false);
@@ -1610,6 +1694,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("hubRoot"), false);
         show($("appRoot"), true);
         show($("cashRoot"), false);
+        show($("stockRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), true);
@@ -1620,11 +1705,25 @@ Interface pensée pour aller vite, sans erreurs.
         show($("hubRoot"), false);
         show($("appRoot"), false);
         show($("cashRoot"), true);
+        show($("stockRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), false);
 
         setCashReadOnlyMode();
+      }
+
+      function showStockApp(){
+        show($("loginCard"), false);
+        show($("hubRoot"), false);
+        show($("appRoot"), false);
+        show($("cashRoot"), false);
+        show($("stockRoot"), true);
+
+        show($("btnLogout"), true);
+        show($("btnSettings"), false);
+
+        applyTitle("Entrée de stock");
       }
 
       // =========================
@@ -2868,8 +2967,10 @@ ${shop}`;
 
       $("btnOpenApp2")?.addEventListener("click", openCashFromHub);
       $("btnBackToHubFromCash")?.addEventListener("click", backToHub);
+      $("btnBackToHubFromStock")?.addEventListener("click", backToHub);
+      $("btnOpenStockNewTab")?.addEventListener("click", ()=> window.open("https://vapochill-stock.onrender.com/", "_blank", "noopener,noreferrer"));
 
-      $("btnOpenApp3")?.addEventListener("click", ()=> alert("🧩 App 3 bientôt !"));
+      $("btnOpenApp3")?.addEventListener("click", showStockApp);
 
       // Orders app events
       $("btnAdd")?.addEventListener("click", addOrder);
@@ -2960,7 +3061,7 @@ ${shop}`;
       // ===== HUB buttons =====
       $("btnOpenOrders")?.addEventListener("click", openOrdersFromHub);
       $("btnOpenApp2")?.addEventListener("click", openCashFromHub);
-      $("btnOpenApp3")?.addEventListener("click", ()=> alert("🧩 Nouvelle app : à venir !"));
+      $("btnOpenApp3")?.addEventListener("click", showStockApp);
 
       $("btnBackToHub")?.addEventListener("click", backToHub);
       $("btnBackToHubFromCash")?.addEventListener("click", backToHub);
@@ -3051,4 +3152,3 @@ ${shop}`;
 
 </body>
 </html>
-
