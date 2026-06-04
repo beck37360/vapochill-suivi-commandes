@@ -875,6 +875,138 @@
       .stockFrameCard{ min-height:620px; }
     }
 
+
+    /* =========================
+       APP 4 : DRIVE VAPO'CHILL
+       ========================= */
+    .driveRoot{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height: calc(100vh - 104px);
+    }
+    .driveHeader{
+      background: linear-gradient(135deg, rgba(15,42,34,.96), rgba(18,56,44,.96));
+      color:#fff;
+      border-radius:22px;
+      padding:16px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 55px rgba(0,0,0,.10);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .driveHeader b{ font-size:18px; }
+    .driveHeader .small{ color:rgba(255,255,255,.82); }
+    .driveGrid{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    .drivePanel{
+      background:var(--vc-card);
+      border:1px solid var(--vc-border);
+      border-radius:22px;
+      padding:14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+    .driveToolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .driveToolbar input{ width:260px; max-width:100%; }
+    .driveDrop{
+      border:2px dashed rgba(15,42,34,.18);
+      background:#fbfcfb;
+      border-radius:18px;
+      padding:18px;
+      text-align:center;
+      color:var(--vc-muted);
+      cursor:pointer;
+      transition: all .15s ease;
+    }
+    .driveDrop.dragOver{
+      border-color:var(--vc-green);
+      background:rgba(43,182,115,.08);
+      color:var(--vc-dark);
+    }
+    .driveBreadcrumb{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
+      font-size:12px;
+      margin:10px 0;
+    }
+    .driveCrumb{
+      border:1px solid #d7e0db;
+      background:#f6f8f7;
+      border-radius:999px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .driveTreeItem{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+      word-break:break-word;
+    }
+    .driveTreeItem:hover{ background:#f6f8f7; }
+    .driveTreeItem.active{ background:rgba(15,42,34,.08); font-weight:900; }
+    .driveFileName{
+      font-weight:900;
+      color:var(--vc-text);
+      word-break:break-word;
+    }
+    .driveMeta{ font-size:12px; color:var(--vc-muted); margin-top:3px; }
+    .driveEmpty{
+      padding:28px;
+      text-align:center;
+      color:var(--vc-muted);
+      border:1px dashed var(--vc-border);
+      border-radius:18px;
+      background:#fbfcfb;
+    }
+    .driveActions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .driveActions button{
+      padding:7px 9px;
+      border-radius:10px;
+      font-size:12px;
+    }
+    .driveStatus{
+      min-height:18px;
+      font-size:12px;
+      color:var(--vc-muted);
+      white-space:pre-wrap;
+    }
+    .driveTableWrap{ overflow:auto; }
+    .driveTable th:last-child,
+    .driveTable td:last-child{ text-align:right; }
+    @media (max-width: 980px){
+      .driveGrid{ grid-template-columns:1fr; }
+      .driveToolbar{ align-items:stretch; }
+      .driveToolbar input{ width:100%; }
+      .driveActions{ justify-content:flex-start; }
+      .driveTable th:nth-child(3), .driveTable td:nth-child(3){ display:none; }
+    }
+
   </style>
 </head>
 <body>
@@ -1045,6 +1177,22 @@ Interface pensée pour aller vite, sans erreurs.
               </div>
               <div class="actions">
                 <button id="btnOpenApp3" class="primary" type="button">Ouvrir</button>
+              </div>
+            </div>
+
+            <!-- App 4 -->
+            <div class="appTile">
+              <div class="top">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="appIcon">📁</div>
+                  <div>
+                    <h3>Drive Vapo'Chill</h3>
+                    <p>Dossiers partagés • fichiers boutiques • téléchargement • partage interne</p>
+                  </div>
+                </div>
+              </div>
+              <div class="actions">
+                <button id="btnOpenApp4" class="primary" type="button">Ouvrir</button>
               </div>
             </div>
           </div>
@@ -1509,6 +1657,74 @@ Interface pensée pour aller vite, sans erreurs.
       </div>
 
     </div> <!-- /stockRoot -->
+
+    <!-- ===============================
+         APP 4 : DRIVE VAPO'CHILL
+         =============================== -->
+    <div class="hidden" id="driveRoot">
+
+      <div class="appTopActions">
+        <button class="backBtn" id="btnBackToHubFromDrive" type="button">← Retour aux applications</button>
+      </div>
+
+      <div class="driveRoot">
+        <div class="driveHeader">
+          <div>
+            <b>Drive Vapo'Chill</b>
+            <div class="small">Dossiers et fichiers partagés entre toutes les boutiques.</div>
+          </div>
+          <div class="actions">
+            <button class="light" id="btnDriveRefresh" type="button">↻ Recharger</button>
+            <button class="ok" id="btnDriveNewFolder" type="button">+ Nouveau dossier</button>
+            <button class="primary" id="btnDriveUpload" type="button">⬆ Importer</button>
+            <input id="driveFileInput" type="file" multiple hidden>
+          </div>
+        </div>
+
+        <div class="driveGrid">
+          <div class="drivePanel">
+            <b>Arborescence</b>
+            <div class="small" style="margin-top:4px">Clique sur un dossier pour l’ouvrir.</div>
+            <div style="height:10px"></div>
+            <div class="driveTreeItem active" id="driveTreeRoot">🏠 Racine</div>
+            <div id="driveTree"></div>
+          </div>
+
+          <div class="drivePanel">
+            <div class="driveToolbar">
+              <div>
+                <b id="driveCurrentTitle">Racine</b>
+                <div class="driveStatus" id="driveStatus">—</div>
+              </div>
+              <input id="driveSearch" placeholder="Rechercher un fichier ou dossier...">
+            </div>
+
+            <div class="driveDrop" id="driveDropZone">
+              <b>Dépose tes fichiers ici</b>
+              <div class="small">PDF, images, Excel, Word, ZIP… visible par toutes les boutiques.</div>
+            </div>
+
+            <div class="driveBreadcrumb" id="driveBreadcrumb"></div>
+
+            <div class="driveTableWrap">
+              <table class="driveTable">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Type</th>
+                    <th>Ajouté par</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="driveTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- /driveRoot -->
     <!-- Supabase v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script nomodule>
@@ -1638,6 +1854,11 @@ Interface pensée pour aller vite, sans erreurs.
       let ordersCache = [];
       let waPendingOrderId = null;
 
+      let driveCurrentFolderId = null;
+      let driveItemsCache = [];
+      let driveUserId = null;
+      const DRIVE_BUCKET = "vapochill-drive";
+
       function canWrite(){
         return role === "shop" || role === "admin";
       }
@@ -1662,6 +1883,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("appRoot"), false);
         show($("cashRoot"), false);
         show($("stockRoot"), false);
+        show($("driveRoot"), false);
 
         show($("resetCard"), isRecoveryFlow());
         setAuthMsg("");
@@ -1681,6 +1903,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("appRoot"), false);
         show($("cashRoot"), false);
         show($("stockRoot"), false);
+        show($("driveRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), false);
@@ -1695,6 +1918,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("appRoot"), true);
         show($("cashRoot"), false);
         show($("stockRoot"), false);
+        show($("driveRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), true);
@@ -1706,6 +1930,7 @@ Interface pensée pour aller vite, sans erreurs.
         show($("appRoot"), false);
         show($("cashRoot"), true);
         show($("stockRoot"), false);
+        show($("driveRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), false);
@@ -1719,11 +1944,26 @@ Interface pensée pour aller vite, sans erreurs.
         show($("appRoot"), false);
         show($("cashRoot"), false);
         show($("stockRoot"), true);
+        show($("driveRoot"), false);
 
         show($("btnLogout"), true);
         show($("btnSettings"), false);
 
         applyTitle("Entrée de stock");
+      }
+
+      function showDriveApp(){
+        show($("loginCard"), false);
+        show($("hubRoot"), false);
+        show($("appRoot"), false);
+        show($("cashRoot"), false);
+        show($("stockRoot"), false);
+        show($("driveRoot"), true);
+
+        show($("btnLogout"), true);
+        show($("btnSettings"), false);
+
+        applyTitle("Drive Vapo'Chill");
       }
 
       // =========================
@@ -2910,6 +3150,386 @@ ${shop}`;
         await loadCashForCurrentTarget();
       }
 
+
+      // =========================
+      // APP 4 : DRIVE VAPO'CHILL (Supabase Storage)
+      // Tables: drive_items | Bucket: vapochill-drive
+      // =========================
+      function driveSetStatus(text){
+        const el = $("driveStatus");
+        if(el) el.textContent = text || "";
+      }
+
+      function driveFormatSize(bytes){
+        const n = Number(bytes || 0);
+        if(n < 1024) return n + " o";
+        if(n < 1024*1024) return (n/1024).toFixed(1).replace(".", ",") + " Ko";
+        if(n < 1024*1024*1024) return (n/1024/1024).toFixed(1).replace(".", ",") + " Mo";
+        return (n/1024/1024/1024).toFixed(1).replace(".", ",") + " Go";
+      }
+
+      function drivePrettyDate(iso){
+        if(!iso) return "—";
+        const d = new Date(iso);
+        if(isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
+      }
+
+      function driveSafeName(name){
+        return String(name || "fichier")
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-zA-Z0-9._-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || "fichier";
+      }
+
+      function driveCanDelete(item){
+        if(role === "admin") return true;
+        return item.created_by && driveUserId && String(item.created_by) === String(driveUserId);
+      }
+
+      function driveCanMove(item){
+        return role === "admin";
+      }
+
+      async function driveGetUserId(){
+        if(driveUserId) return driveUserId;
+        const { data, error } = await supabaseClient.auth.getUser();
+        if(error) throw new Error(error.message);
+        driveUserId = data?.user?.id || null;
+        return driveUserId;
+      }
+
+      async function driveEnsureBucket(){
+        // Le bucket doit être créé dans Supabase.
+        // Si absent, l'app affichera une erreur claire au moment de l'upload.
+        return true;
+      }
+
+      async function driveFetchItems(){
+        driveSetStatus("Chargement…");
+        const { data, error } = await supabaseClient
+          .from("drive_items")
+          .select("*")
+          .order("type", { ascending:false })
+          .order("name", { ascending:true });
+
+        if(error){
+          driveSetStatus("❌ Table drive_items absente ou non accessible : " + error.message);
+          driveItemsCache = [];
+          driveRender();
+          return;
+        }
+
+        driveItemsCache = data || [];
+        driveRender();
+      }
+
+      function driveChildren(parentId){
+        return driveItemsCache.filter(item => {
+          const pid = item.parent_id || null;
+          return String(pid || "") === String(parentId || "");
+        });
+      }
+
+      function driveFolders(){
+        return driveItemsCache.filter(i => i.type === "folder");
+      }
+
+      function driveFind(id){
+        return driveItemsCache.find(i => String(i.id) === String(id));
+      }
+
+      function drivePathForFolder(folderId){
+        if(!folderId) return [];
+        const path = [];
+        let cur = driveFind(folderId);
+        let guard = 0;
+        while(cur && guard < 50){
+          path.unshift(cur);
+          cur = cur.parent_id ? driveFind(cur.parent_id) : null;
+          guard++;
+        }
+        return path;
+      }
+
+      function driveRenderTree(){
+        const tree = $("driveTree");
+        if(!tree) return;
+        const folders = driveFolders();
+
+        function renderLevel(parentId, depth){
+          return folders
+            .filter(f => String(f.parent_id || "") === String(parentId || ""))
+            .map(f => {
+              const active = String(f.id) === String(driveCurrentFolderId);
+              return `
+                <div class="driveTreeItem ${active ? "active" : ""}" data-drive-open="${f.id}" style="padding-left:${10 + depth*14}px">
+                  📁 <span>${escapeHtml(f.name)}</span>
+                </div>
+                ${renderLevel(f.id, depth+1)}
+              `;
+            }).join("");
+        }
+
+        tree.innerHTML = renderLevel(null, 0);
+        const root = $("driveTreeRoot");
+        if(root) root.classList.toggle("active", !driveCurrentFolderId);
+      }
+
+      function driveRenderBreadcrumb(){
+        const box = $("driveBreadcrumb");
+        if(!box) return;
+        const path = drivePathForFolder(driveCurrentFolderId);
+        box.innerHTML = `<span class="driveCrumb" data-drive-open="">🏠 Racine</span>` + path.map(p => {
+          return `<span>›</span><span class="driveCrumb" data-drive-open="${p.id}">${escapeHtml(p.name)}</span>`;
+        }).join("");
+
+        const title = $("driveCurrentTitle");
+        if(title) title.textContent = path.length ? path[path.length-1].name : "Racine";
+      }
+
+      function driveRenderList(){
+        const tbody = $("driveTbody");
+        if(!tbody) return;
+        const q = ($("driveSearch")?.value || "").trim().toLowerCase();
+        let list = driveChildren(driveCurrentFolderId);
+        if(q){
+          list = list.filter(i => (i.name || "").toLowerCase().includes(q));
+        }
+
+        tbody.innerHTML = "";
+
+        if(!list.length){
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5">
+                <div class="driveEmpty">Aucun fichier ou dossier ici.</div>
+              </td>
+            </tr>`;
+          driveSetStatus(`${driveItemsCache.length} élément(s) au total`);
+          return;
+        }
+
+        for(const item of list){
+          const isFolder = item.type === "folder";
+          const typeLabel = isFolder ? "Dossier" : (item.mime_type || "Fichier");
+          const owner = item.created_by_store || item.uploaded_by_store || "—";
+          const size = isFolder ? "" : ` · ${driveFormatSize(item.file_size)}`;
+          const canDelete = driveCanDelete(item);
+          const canMove = driveCanMove(item);
+
+          const previewBtn = !isFolder ? `<button class="light" data-drive-preview="${item.id}">Aperçu</button>` : "";
+          const downloadBtn = !isFolder ? `<button class="primary" data-drive-download="${item.id}">Télécharger</button>` : "";
+          const shareBtn = !isFolder ? `<button class="light" data-drive-share="${item.id}">Copier lien</button>` : "";
+          const openBtn = isFolder ? `<button class="primary" data-drive-open="${item.id}">Ouvrir</button>` : "";
+          const renameBtn = (role === "admin" || canDelete) ? `<button class="light" data-drive-rename="${item.id}">Renommer</button>` : "";
+          const moveBtn = canMove ? `<button class="light" data-drive-move="${item.id}">Déplacer</button>` : "";
+          const deleteBtn = canDelete ? `<button class="danger" data-drive-delete="${item.id}">Supprimer</button>` : `<span class="small">Lecture seule</span>`;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>
+              <div class="driveFileName">${isFolder ? "📁" : "📄"} ${escapeHtml(item.name)}</div>
+              <div class="driveMeta">${escapeHtml(typeLabel)}${escapeHtml(size)}</div>
+            </td>
+            <td><span class="pill">${escapeHtml(isFolder ? "Dossier" : "Fichier")}</span></td>
+            <td>${escapeHtml(owner)}</td>
+            <td>${drivePrettyDate(item.created_at)}</td>
+            <td><div class="driveActions">${openBtn}${previewBtn}${downloadBtn}${shareBtn}${renameBtn}${moveBtn}${deleteBtn}</div></td>
+          `;
+          tbody.appendChild(tr);
+        }
+
+        driveSetStatus(`${list.length} élément(s) dans ce dossier · ${driveItemsCache.length} au total`);
+      }
+
+      function driveRender(){
+        driveRenderTree();
+        driveRenderBreadcrumb();
+        driveRenderList();
+      }
+
+      async function driveCreateFolder(){
+        try{
+          await driveGetUserId();
+          const name = prompt("Nom du nouveau dossier :");
+          if(!name || !name.trim()) return;
+
+          const clean = name.trim();
+          const exists = driveChildren(driveCurrentFolderId).some(i => i.type === "folder" && (i.name || "").toLowerCase() === clean.toLowerCase());
+          if(exists){ alert("⚠️ Un dossier avec ce nom existe déjà ici."); return; }
+
+          const { error } = await supabaseClient.from("drive_items").insert([{
+            name: clean,
+            type: "folder",
+            parent_id: driveCurrentFolderId,
+            created_by: driveUserId,
+            created_by_store: myStoreName || (role === "admin" ? "Admin" : "Boutique")
+          }]);
+
+          if(error) throw new Error(error.message);
+          await driveFetchItems();
+        }catch(err){
+          alert("❌ Création dossier : " + (err?.message || err));
+        }
+      }
+
+      async function driveUploadFiles(files){
+        try{
+          await driveEnsureBucket();
+          await driveGetUserId();
+          const arr = Array.from(files || []);
+          if(!arr.length) return;
+
+          driveSetStatus(`Upload de ${arr.length} fichier(s)…`);
+
+          const folderPath = drivePathForFolder(driveCurrentFolderId).map(f => driveSafeName(f.name)).join("/");
+          const basePath = folderPath ? folderPath + "/" : "";
+          let done = 0;
+
+          for(const file of arr){
+            const safe = driveSafeName(file.name);
+            const storagePath = `${basePath}${Date.now()}-${Math.random().toString(16).slice(2)}-${safe}`;
+
+            const up = await supabaseClient.storage
+              .from(DRIVE_BUCKET)
+              .upload(storagePath, file, { upsert:false, contentType:file.type || "application/octet-stream" });
+
+            if(up.error) throw new Error(up.error.message);
+
+            const ins = await supabaseClient.from("drive_items").insert([{
+              name: file.name,
+              type: "file",
+              parent_id: driveCurrentFolderId,
+              storage_path: storagePath,
+              file_size: file.size,
+              mime_type: file.type || "application/octet-stream",
+              created_by: driveUserId,
+              created_by_store: myStoreName || (role === "admin" ? "Admin" : "Boutique")
+            }]);
+
+            if(ins.error){
+              await supabaseClient.storage.from(DRIVE_BUCKET).remove([storagePath]);
+              throw new Error(ins.error.message);
+            }
+
+            done++;
+            driveSetStatus(`Upload ${done}/${arr.length}…`);
+          }
+
+          if($("driveFileInput")) $("driveFileInput").value = "";
+          await driveFetchItems();
+        }catch(err){
+          alert("❌ Upload : " + (err?.message || err));
+          driveSetStatus("Erreur upload.");
+        }
+      }
+
+      async function driveSignedUrl(item, seconds=3600){
+        if(!item?.storage_path) throw new Error("Chemin Storage manquant.");
+        const { data, error } = await supabaseClient.storage
+          .from(DRIVE_BUCKET)
+          .createSignedUrl(item.storage_path, seconds);
+        if(error) throw new Error(error.message);
+        return data?.signedUrl;
+      }
+
+      async function driveDownload(id){
+        try{
+          const item = driveFind(id);
+          const url = await driveSignedUrl(item, 3600);
+          window.open(url, "_blank", "noopener,noreferrer");
+        }catch(err){ alert("❌ Téléchargement : " + (err?.message || err)); }
+      }
+
+      async function drivePreview(id){
+        try{
+          const item = driveFind(id);
+          const url = await driveSignedUrl(item, 3600);
+          window.open(url, "_blank", "noopener,noreferrer");
+        }catch(err){ alert("❌ Aperçu : " + (err?.message || err)); }
+      }
+
+      async function driveShare(id){
+        try{
+          const item = driveFind(id);
+          const url = await driveSignedUrl(item, 60*60*24*7);
+          await navigator.clipboard.writeText(url);
+          alert("✅ Lien copié. Valable 7 jours.");
+        }catch(err){
+          alert("❌ Copie lien : " + (err?.message || err));
+        }
+      }
+
+      async function driveDelete(id){
+        try{
+          const item = driveFind(id);
+          if(!item) return;
+          if(!driveCanDelete(item)){ alert("⛔ Tu ne peux pas supprimer un élément créé par une autre boutique."); return; }
+
+          if(item.type === "folder"){
+            const children = driveChildren(item.id);
+            if(children.length){ alert("⚠️ Ce dossier n’est pas vide."); return; }
+          }
+
+          if(!confirm(`Supprimer définitivement : ${item.name} ?`)) return;
+
+          if(item.type === "file" && item.storage_path){
+            const rem = await supabaseClient.storage.from(DRIVE_BUCKET).remove([item.storage_path]);
+            if(rem.error) throw new Error(rem.error.message);
+          }
+
+          const del = await supabaseClient.from("drive_items").delete().eq("id", item.id);
+          if(del.error) throw new Error(del.error.message);
+
+          await driveFetchItems();
+        }catch(err){
+          alert("❌ Suppression : " + (err?.message || err));
+        }
+      }
+
+      async function driveRename(id){
+        try{
+          const item = driveFind(id);
+          if(!item) return;
+          if(role !== "admin" && !driveCanDelete(item)){ alert("⛔ Tu ne peux renommer que tes propres éléments."); return; }
+
+          const name = prompt("Nouveau nom :", item.name || "");
+          if(!name || !name.trim()) return;
+
+          const { error } = await supabaseClient.from("drive_items").update({ name:name.trim() }).eq("id", item.id);
+          if(error) throw new Error(error.message);
+          await driveFetchItems();
+        }catch(err){ alert("❌ Renommer : " + (err?.message || err)); }
+      }
+
+      async function driveMove(id){
+        try{
+          if(role !== "admin"){ alert("⛔ Déplacement réservé à l’admin."); return; }
+          const item = driveFind(id);
+          if(!item) return;
+
+          const folders = driveFolders().filter(f => String(f.id) !== String(item.id));
+          const choices = ["0 — Racine"].concat(folders.map((f, idx) => `${idx+1} — ${drivePathForFolder(f.id).map(x=>x.name).join(" / ")}`));
+          const answer = prompt("Déplacer vers :\n" + choices.join("\n") + "\n\nIndique le numéro :", "0");
+          if(answer === null) return;
+          const idx = Number(answer);
+          if(!Number.isInteger(idx) || idx < 0 || idx > folders.length){ alert("Choix invalide."); return; }
+
+          const newParent = idx === 0 ? null : folders[idx-1].id;
+          const { error } = await supabaseClient.from("drive_items").update({ parent_id:newParent }).eq("id", item.id);
+          if(error) throw new Error(error.message);
+          await driveFetchItems();
+        }catch(err){ alert("❌ Déplacement : " + (err?.message || err)); }
+      }
+
+      async function openDriveFromHub(){
+        showDriveApp();
+        await driveGetUserId();
+        await driveFetchItems();
+      }
+
       // =========================
       // Enter after login
       // =========================
@@ -2971,6 +3591,35 @@ ${shop}`;
       $("btnOpenStockNewTab")?.addEventListener("click", ()=> window.open("https://vapochill-stock.onrender.com/", "_blank", "noopener,noreferrer"));
 
       $("btnOpenApp3")?.addEventListener("click", showStockApp);
+      $("btnOpenApp4")?.addEventListener("click", openDriveFromHub);
+      $("btnBackToHubFromDrive")?.addEventListener("click", backToHub);
+      $("btnDriveRefresh")?.addEventListener("click", driveFetchItems);
+      $("btnDriveNewFolder")?.addEventListener("click", driveCreateFolder);
+      $("btnDriveUpload")?.addEventListener("click", ()=> $("driveFileInput")?.click());
+      $("driveFileInput")?.addEventListener("change", (e)=> driveUploadFiles(e.target.files));
+      $("driveSearch")?.addEventListener("input", driveRenderList);
+      $("driveTreeRoot")?.addEventListener("click", ()=>{ driveCurrentFolderId = null; driveRender(); });
+
+      $("driveDropZone")?.addEventListener("click", ()=> $("driveFileInput")?.click());
+      $("driveDropZone")?.addEventListener("dragover", (e)=>{ e.preventDefault(); $("driveDropZone")?.classList.add("dragOver"); });
+      $("driveDropZone")?.addEventListener("dragleave", ()=> $("driveDropZone")?.classList.remove("dragOver"));
+      $("driveDropZone")?.addEventListener("drop", (e)=>{
+        e.preventDefault();
+        $("driveDropZone")?.classList.remove("dragOver");
+        driveUploadFiles(e.dataTransfer.files);
+      });
+
+      document.addEventListener("click", async (e)=>{
+        const el = e.target.closest("[data-drive-open],[data-drive-download],[data-drive-preview],[data-drive-share],[data-drive-delete],[data-drive-rename],[data-drive-move]");
+        if(!el) return;
+        if(el.dataset.driveOpen !== undefined){ driveCurrentFolderId = el.dataset.driveOpen || null; driveRender(); return; }
+        if(el.dataset.driveDownload) await driveDownload(el.dataset.driveDownload);
+        if(el.dataset.drivePreview) await drivePreview(el.dataset.drivePreview);
+        if(el.dataset.driveShare) await driveShare(el.dataset.driveShare);
+        if(el.dataset.driveDelete) await driveDelete(el.dataset.driveDelete);
+        if(el.dataset.driveRename) await driveRename(el.dataset.driveRename);
+        if(el.dataset.driveMove) await driveMove(el.dataset.driveMove);
+      });
 
       // Orders app events
       $("btnAdd")?.addEventListener("click", addOrder);
@@ -3062,6 +3711,7 @@ ${shop}`;
       $("btnOpenOrders")?.addEventListener("click", openOrdersFromHub);
       $("btnOpenApp2")?.addEventListener("click", openCashFromHub);
       $("btnOpenApp3")?.addEventListener("click", showStockApp);
+      $("btnOpenApp4")?.addEventListener("click", openDriveFromHub);
 
       $("btnBackToHub")?.addEventListener("click", backToHub);
       $("btnBackToHubFromCash")?.addEventListener("click", backToHub);
